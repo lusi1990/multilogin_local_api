@@ -1,0 +1,377 @@
+openapi: 3.0.1
+info:
+  title: Multilogin Local REST API
+  description: Multilogin Local REST API can be used in order to start, stop, share,
+    clone browser profile/-s. You can also check if the profile is already running
+    on your machine by using checkProfileRunning endpoint and import cookies by using
+    cookieImportJSON/cookieImportNetscape endpoint.
+  version: "1.0.3"
+servers:
+  - url: http://127.0.0.1:35000/api/v1/profile
+paths:
+  /start:
+    get:
+      tags:
+        - Misc
+      summary: startProfile
+      description: Launch browser profile
+      operationId: StartGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+        - name: loadTabs
+          in: query
+          description: If set to true, tabs from previous session will open
+          schema:
+            type: boolean
+        - name: automation
+          in: query
+          description: Set to true to launch profile with Selenium/Puppeteer
+          schema:
+            type: boolean
+        - name: puppeteer
+          in: query
+          description: Set to true to launch profile with Puppeteer automation
+          schema:
+            type: boolean
+      responses:
+        200:
+          description: response OK
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/MainOkResponse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /start?profileId={{profileID}}
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: NONE
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers: {}
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: startProfile
+          x-testDescription: Launch browser profile
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /stop:
+    get:
+      tags:
+        - Misc
+      summary: stopProfile
+      description: Stop browser profile
+      operationId: StopGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/schemas/MainOkResponse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /stop?profileId={{profileID}}
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: NONE
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers: {}
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: stopProfile
+          x-testDescription: Stop browser profile
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /active:
+    get:
+      tags:
+        - Misc
+      summary: checkProfileRunning
+      description: Check if profile is already running
+      operationId: ActiveGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/schemas/ProfileActiveOkResponse'
+        500:
+          $ref: '#/components/schemas/ProfileActiveErrorResponse'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /active?profileId={{profileID}}
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: NONE
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers: {}
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: checkProfileRunning
+          x-testDescription: Check if profile is already running
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /share:
+    get:
+      tags:
+        - Misc
+      summary: shareProfile
+      description: Share browser profile
+      operationId: ShareGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+        - name: user
+          in: query
+          description: Multilogin account (email address) to share profile with
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/schemas/MainOkResponse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-unitTests:
+        - request:
+            method: GET
+            uri: /share?profileId={{profileID}}&user={{user}}
+          expectedResponse:
+            x-allowExtraHeaders: true
+            x-bodyMatchMode: NONE
+            x-arrayOrderedMatching: false
+            x-arrayCheckCount: false
+            x-matchResponseSchema: true
+            headers: {}
+          x-testShouldPass: true
+          x-testEnabled: true
+          x-testName: shareProfile
+          x-testDescription: Share browser profile
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /clone:
+    get:
+      tags:
+        - Misc
+      summary: cloneProfile
+      description: Clone browser profile
+      operationId: ByProfileIDGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/schemas/CloneOkResonse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-unitTests: []
+      x-operation-settings:
+        CollectParameters: false
+        AllowDynamicQueryParameters: false
+        AllowDynamicFormParameters: false
+        IsMultiContentStreaming: false
+  /cookies/import/webext:
+    post:
+      tags:
+        - Misc
+      summary: cookieImportJSON
+      description: Import Cookies in JSON format
+      operationId: CookiesImportWebextGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          description: Cookies in application/json format
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CookieJSONExample'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/schemas/MainOkResponse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-codegen-request-body-name: body
+  /cookies/import/netscape:
+    post:
+      tags:
+        - Misc
+      summary: cookieImportNetscape
+      description: Import Cookies in Netscape format
+      operationId: CookiesImportNetscapeGet
+      parameters:
+        - name: profileId
+          in: query
+          description: Browser profile ID
+          required: true
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          description: Cookies in text/plain format
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CookieNetscapeExample'
+        required: true
+      responses:
+        200:
+          $ref: '#/components/schemas/MainOkResponse'
+        500:
+          $ref: '#/components/schemas/MainErrorResponse'
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    ProfileActiveOkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+        value:
+          type: string
+          example: "true"
+      description: OK response, profile is already launched
+    ProfileActiveErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+        value:
+          type: string
+          example: "false"
+      description: ERROR response, profile is not launched
+    MainOkResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+        value:
+          type: string
+          example: http://127.0.0.1:22449
+      description: OK response
+    MainErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ERROR
+      description: ERROR response
+    CloneOkResonse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+        value:
+          type: array
+          items:
+            type: string
+            example: 0814fbc9-0f22-4150-9bcc-b2122997ede5
+      description: OK response
+    CookieJSONExample:
+      type: object
+      properties:
+        domain:
+          type: string
+          example: .multilogin.com
+        expirationDate:
+          type: string
+          example: "1556611111"
+        hostOnly:
+          type: boolean
+          example: false
+        httpOnly:
+          type: boolean
+          example: false
+        name:
+          type: string
+          example: _first_pageview
+        path:
+          type: string
+          example: /
+        sameSite:
+          type: string
+          example: no_restriction
+        secure:
+          type: boolean
+          example: false
+        session:
+          type: boolean
+          example: false
+        storeId:
+          type: string
+          example: "1"
+        value:
+          type: string
+          example: "3"
+        id:
+          type: integer
+          example: 5
+    CookieNetscapeExample:
+      type: object
+      properties:
+        YourNetscapeCookies:
+          type: string
+          example: In .txt format
