@@ -5,7 +5,7 @@ info:
     clone browser profile/-s. You can also check if the profile is already running
     on your machine by using checkProfileRunning endpoint and import cookies by using
     cookieImportJSON/cookieImportNetscape endpoint.
-  version: "1.0.3"
+  version: "1.0.4"
 servers:
   - url: http://127.0.0.1:35000/api/v1/profile
 paths:
@@ -44,9 +44,13 @@ paths:
           content:
             application/json:
               schema:
-               $ref: '#/components/schemas/MainOkResponse'
+                $ref: '#/components/schemas/MainOkResponse'
         500:
-          $ref: '#/components/schemas/MainErrorResponse'
+          description: response OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MainErrorResponse'
       x-unitTests:
         - request:
             method: GET
@@ -122,9 +126,17 @@ paths:
             type: string
       responses:
         200:
-          $ref: '#/components/schemas/ProfileActiveOkResponse'
+          description: response OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileActiveOkResponse'
         500:
-          $ref: '#/components/schemas/ProfileActiveErrorResponse'
+          description: response OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProfileActiveErrorResponse'
       x-unitTests:
         - request:
             method: GET
@@ -288,8 +300,8 @@ components:
           type: string
           example: OK
         value:
-          type: string
-          example: "true"
+          type: boolean
+          example: true
       description: OK response, profile is already launched
     ProfileActiveErrorResponse:
       type: object
@@ -298,8 +310,8 @@ components:
           type: string
           example: OK
         value:
-          type: string
-          example: "false"
+          type: boolean
+          example: false
       description: ERROR response, profile is not launched
     MainOkResponse:
       type: object
