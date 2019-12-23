@@ -1,0 +1,530 @@
+openapi: 3.0.1
+info:
+  title: Multilogin Rest API v2
+  description: '__Overview__ <br> Multilogin Rest API v2 is created for Multilogin
+    3.x versions. Currently, it has only createProfile endpoint however we are planning
+    to add more endpoints soon.<br><br> __Access token__ <br> In order to access Rest
+    API endpoints, you must have an authentication token which is located at app.properties
+    file (.multiloginapp.com directory). <br><br> __Request body__ <br> REST API v2
+    has 3 mandatory parameters in request body: name, os and browser. Therefore, you
+    can create browser profiles with random fingerprints by specifying only name,
+    os and browser parameters (other fingerprints will be altered automatically).<br><br>
+    Here is how you can create profile with random fingerprints: <br><pre>__{<br>"name":
+    "testProfile",<br>"browser": "mimic",<br>"os": "win",<br>"network": {<br>    "proxy":
+    {<br>        "type": "HTTP",<br>        "host": "192.168.1.1",<br>        "port":
+    "1080",<br>        "username": "username",<br>        "password": "password"<br>        }<br>    }<br>}__</pre>
+    _You can see all possible request body values in the example of createProfile
+    request._'
+  version: "2.0"
+servers:
+  - url: //api.multiloginapp.com/v2
+paths:
+  /profile:
+    post:
+      summary: createProfile
+      description: Create a browser profile
+      operationId: create
+      parameters:
+        - name: token
+          in: query
+          description: Authentication token
+          required: true
+          schema:
+            type: string
+        - name: mlaVersion
+          in: query
+          description: Multilogin app version
+          required: true
+          schema:
+            type: string
+        - name: defaultMode
+          in: query
+          description: Default value for all masking mechanisms
+          schema:
+            type: string
+            default: FAKE
+            enum:
+              - REAL
+              - FAKE
+        - name: screenWidthMin
+          in: query
+          description: Minimal screen width
+          schema:
+            type: integer
+            format: int32
+        - name: screenWidthMax
+          in: query
+          description: Maximal screen width
+          schema:
+            type: integer
+            format: int32
+        - name: screenHeightMin
+          in: query
+          description: Minimal screen width
+          schema:
+            type: integer
+            format: int32
+        - name: screenHeightMax
+          in: query
+          description: Maximal screen height
+          schema:
+            type: integer
+            format: int32
+        - name: browserVersionMin
+          in: query
+          description: Maximal browser core version
+          schema:
+            type: integer
+            format: int32
+        - name: browserVersionMax
+          in: query
+          description: Maximal browser core version
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/MlaProfile'
+        required: true
+      responses:
+        200:
+          description: "创建"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOkResponse'
+        400:
+          description: 创建出错
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateErrorResponse'
+      x-codegen-request-body-name: body
+  /profile/{profileId}:
+    put:
+      summary: updateProfile
+      description: Update a browser profile
+      operationId: update
+      parameters:
+        - name: profileId
+          in: path
+          description: browser profile ID
+          required: true
+          schema:
+            type: string
+        - name: token
+          in: query
+          description: Authentication token
+          required: true
+          schema:
+            type: string
+        - name: mlaVersion
+          in: query
+          description: Multilogin app version
+          schema:
+            type: string
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              $ref: '#/components/schemas/MlaProfile'
+        required: true
+      responses:
+        200:
+          description: "Update success"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOkResponse'
+        400:
+          description: "Update failed"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateErrorResponse'
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    MlaAudioContext:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - NOISE
+    MlaCanvas:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - BLOCK
+            - NOISE
+            - NATURAL
+    MlaFonts:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - FAKE
+        maskGlyphs:
+          type: boolean
+        families:
+          type: array
+          items:
+            type: string
+    MlaGeolocation:
+      required:
+        - accuracy
+        - lat
+        - lng
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - PROMPT
+            - BLOCK
+            - ALLOW
+        fillBasedOnExternalIp:
+          type: boolean
+        lat:
+          maximum: 9E+1
+          exclusiveMaximum: false
+          minimum: -9E+1
+          exclusiveMinimum: false
+          type: number
+          format: double
+        lng:
+          maximum: 1.8E+2
+          exclusiveMaximum: false
+          minimum: -1.8E+2
+          exclusiveMinimum: false
+          type: number
+          format: double
+        accuracy:
+          minimum: 1
+          type: integer
+          format: int32
+    MlaMediaDevices:
+      required:
+        - audioInputs
+        - audioOutputs
+        - mode
+        - videoInputs
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - FAKE
+        videoInputs:
+          type: integer
+          format: int32
+        audioInputs:
+          type: integer
+          format: int32
+        audioOutputs:
+          type: integer
+          format: int32
+    MlaNavigator:
+      type: object
+      properties:
+        userAgent:
+          type: string
+        resolution:
+          type: string
+        language:
+          type: string
+        platform:
+          type: string
+        doNotTrack:
+          type: string
+        hardwareConcurrency:
+          type: integer
+          format: int32
+    MlaNetworkConf:
+      type: object
+      properties:
+        proxy:
+          $ref: '#/components/schemas/MlaProxyConf'
+        dns:
+          maxItems: 1
+          minItems: 0
+          type: array
+          items:
+            type: string
+    MlaPlugins:
+      type: object
+      properties:
+        enableVulnerable:
+          type: boolean
+        enableFlash:
+          type: boolean
+    MlaProfile:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+        notes:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+        browser:
+          pattern: mimic|stealthfox|mimic_mobile
+          type: string
+        os:
+          pattern: lin|mac|win|android
+          type: string
+        startUrl:
+          type: string
+          example: https://multilogin.com/
+        googleServices:
+          type: boolean
+        enableLock:
+          type: boolean
+        navigator:
+          $ref: '#/components/schemas/MlaNavigator'
+        storage:
+          $ref: '#/components/schemas/MlaStorageConf'
+        network:
+          $ref: '#/components/schemas/MlaNetworkConf'
+        plugins:
+          $ref: '#/components/schemas/MlaPlugins'
+        timezone:
+          $ref: '#/components/schemas/MlaTimezone'
+        geolocation:
+          $ref: '#/components/schemas/MlaGeolocation'
+        audioContext:
+          $ref: '#/components/schemas/MlaAudioContext'
+        canvas:
+          $ref: '#/components/schemas/MlaCanvas'
+        fonts:
+          $ref: '#/components/schemas/MlaFonts'
+        mediaDevices:
+          $ref: '#/components/schemas/MlaMediaDevices'
+        webRTC:
+          $ref: '#/components/schemas/MlaWebRTC'
+        webGL:
+          $ref: '#/components/schemas/MlaWebGL'
+        webGLMetadata:
+          $ref: '#/components/schemas/MlaWebGLMetadata'
+        extensions:
+          $ref: '#/components/schemas/MlaCustomExtensions'
+      example:
+        name: testProfile
+        notes: Test profile notes
+        browser: mimic
+        os: win
+        startUrl: https://multilogin.com/
+        googleServices: true
+        enableLock: true
+        navigator:
+          userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101
+            Firefox/62.0
+          resolution: 1280x720
+          language: en-US,en;q=0.9
+          platform: Win64
+          doNotTrack: 0
+          hardwareConcurrency: 4
+        storage:
+          local: true
+          extensions: true
+          bookmarks: false
+          history: false
+          passwords: true
+        network:
+          proxy:
+            type: HTTP
+            host: 192.168.1.1
+            port: "1080"
+            username: username
+            password: password
+          dns:
+            - 8.8.8.8
+        plugins:
+          enableVulnerable: true
+          enableFlash: true
+        timezone:
+          mode: FAKE
+          fillBasedOnExternalIp: true
+        geolocation:
+          mode: PROMPT
+          fillBasedOnExternalIp: false
+          lat: 27.001
+          lng: 27.001
+          accuracy: 10
+        audioContext:
+          mode: NOISE
+        canvas:
+          mode: NOISE
+        fonts:
+          mode: FAKE
+          maskGlyphs: true
+          families:
+            - MS Serif
+            - Segoe UI
+        mediaDevices:
+          mode: FAKE
+          videoInputs: 1
+          audioInputs: 2
+          audioOutputs: 3
+        webRTC:
+          mode: FAKE
+          fillBasedOnExternalIp: false
+          publicIp: 192.168.1.1
+          localIps:
+            - 172.16.1.1
+            - 192.168.0.12
+        webGL:
+          mode: NOISE
+        webGLMetadata:
+          mode: MASK
+          vendor: Google Inc.
+          renderer: ANGLE AMD Mobility Radeon HD 5000
+        extensions:
+          enable: true
+          names:
+            - ext1.crx
+            - ext2.crx
+    MlaProxyConf:
+      required:
+        - host
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - NONE
+            - HTTP
+            - SOCKS
+        host:
+          type: string
+        port:
+          maximum: 65535
+          minimum: 0
+          type: integer
+          format: int32
+        username:
+          type: string
+        password:
+          type: string
+    MlaStorageConf:
+      type: object
+      properties:
+        local:
+          type: boolean
+        extensions:
+          type: boolean
+        bookmarks:
+          type: boolean
+        history:
+          type: boolean
+        passwords:
+          type: boolean
+    MlaTimezone:
+      required:
+        - mode
+        - zoneId
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - FAKE
+        fillBasedOnExternalIp:
+          type: boolean
+        zoneId:
+          type: string
+    MlaWebRTC:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - BLOCK
+            - FAKE
+        fillBasedOnExternalIp:
+          type: boolean
+        publicIp:
+          type: string
+        localIps:
+          type: array
+          items:
+            type: string
+    MlaWebGL:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - REAL
+            - NOISE
+    MlaWebGLMetadata:
+      required:
+        - mode
+      type: object
+      properties:
+        mode:
+          type: string
+          enum:
+            - MASK
+            - REAL
+        vendor:
+          type: string
+        renderer:
+          type: string
+    MlaCustomExtensions:
+      required:
+        - enable
+        - names
+      type: object
+      properties:
+        enable:
+          type: boolean
+        names:
+          type: array
+          items:
+            type: string
+    CreateOkResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          example: profile id
+      description: OK response
+    CreateErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ERROR
+        value:
+          type: string
+          example: error details
+      description: ERROR response
